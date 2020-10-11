@@ -26,7 +26,7 @@ function proces_all()
     array_alloc = Array{Float64, 4}[]
     for x in s3_list_objects(aws, "brazil.images")
         push!(processed_img_paths, x["Key"])
-        img_raw = 
+        img_raw 
     end
 end    
 
