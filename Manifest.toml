@@ -362,6 +362,18 @@ git-tree-sha1 = "bb04a804f23bbfa98defb4a2907b104658821959"
 uuid = "6a3955dd-da59-5b1f-98d4-e7296123deb5"
 version = "0.6.15"
 
+[[ImageMagick]]
+deps = ["FileIO", "ImageCore", "ImageMagick_jll", "InteractiveUtils", "Libdl", "Pkg", "Random"]
+git-tree-sha1 = "02558f83932fde6ebd3ab007dbff6bd8740a8247"
+uuid = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
+version = "1.1.6"
+
+[[ImageMagick_jll]]
+deps = ["JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pkg", "Zlib_jll", "libpng_jll"]
+git-tree-sha1 = "1c0a2295cca535fabaf2029062912591e9b61987"
+uuid = "c73af94c-d91f-53ed-93a7-00f77d67a9d7"
+version = "6.9.10-12+3"
+
 [[ImageMetadata]]
 deps = ["AxisArrays", "ColorVectorSpace", "ImageAxes", "ImageCore", "IndirectArrays"]
 git-tree-sha1 = "efae9c13f2beda27f5d769ef48e8ffec0ef2aa32"
@@ -447,6 +459,12 @@ git-tree-sha1 = "81690084b6198a2e1da36fcfda16eeca9f9f24e4"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.1"
 
+[[JpegTurbo_jll]]
+deps = ["Libdl", "Pkg"]
+git-tree-sha1 = "76e28bf35d0c179531b11e254f66bbcc1fd268ca"
+uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
+version = "2.0.1+2"
+
 [[JuliaInterpreter]]
 deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
 git-tree-sha1 = "5b9b328eeea7bb85caca1576c15041e8faeb9041"
@@ -483,6 +501,12 @@ deps = ["Libdl", "Pkg"]
 git-tree-sha1 = "7c36dfe7971e55da03d8f54b67d4b3fb8ee01d63"
 uuid = "94ce4f54-9a6c-5748-9c1c-f9c7231a4531"
 version = "1.16.0+6"
+
+[[Libtiff_jll]]
+deps = ["JpegTurbo_jll", "Libdl", "Pkg", "Zlib_jll", "Zstd_jll"]
+git-tree-sha1 = "84ad722d8b9c6d3b3ca3a067d1da12b641352584"
+uuid = "89763e89-9b03-5906-acba-b20f662cd828"
+version = "4.1.0+1"
 
 [[LinearAlgebra]]
 deps = ["Libdl"]
@@ -828,6 +852,12 @@ git-tree-sha1 = "ded43825988ace7a311ee7e1d0f09571822509c4"
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
 version = "1.2.11+17"
 
+[[Zstd_jll]]
+deps = ["Libdl", "Pkg"]
+git-tree-sha1 = "4de91f4313d9e88162d461e282fe3066ab3a3c09"
+uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
+version = "1.4.5+1"
+
 [[Zygote]]
 deps = ["AbstractFFTs", "ArrayLayouts", "ChainRules", "DiffRules", "Distributed", "FillArrays", "ForwardDiff", "Future", "IRTools", "InteractiveUtils", "LinearAlgebra", "LoopVectorization", "MacroTools", "NNlib", "NaNMath", "Random", "Requires", "SpecialFunctions", "Statistics", "ZygoteRules"]
 git-tree-sha1 = "4eab8971579a9879ce260ac16a7c54935a79edb6"
@@ -839,3 +869,9 @@ deps = ["MacroTools"]
 git-tree-sha1 = "b3b4882cc9accf6731a08cc39543fbc6b669dca8"
 uuid = "700de1a5-db45-46bc-99cf-38207098b444"
 version = "0.2.0"
+
+[[libpng_jll]]
+deps = ["Libdl", "Pkg", "Zlib_jll"]
+git-tree-sha1 = "0a93f3eae5b80f08dc789e549657c199f1da6417"
+uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
+version = "1.6.37+5"
