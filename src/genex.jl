@@ -10,7 +10,7 @@ import ImageMagick
 # MUST: add CUDA@1.3.3
 import CUDA
 
-aws = AWSCore.aws_config()
+#aws = AWSCore.aws_config()
 
 # create mega_function
 """
