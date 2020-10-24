@@ -6,9 +6,10 @@ using AWSCore
 using AWSS3
 using Metalhead
 using Test
-using Pipe
 using ImageMagick
 using OffsetArrays
+using Flux
+using ProgressMeter
 
 ## You will need to run aws configure first to make this work
 aws = AWSCore.aws_config()
@@ -52,4 +53,18 @@ img_3d[:, :, 1:3, 1] .= img_orig
 # Now, finally create the estimate
 pred = res.layers[1:20](img_3d)
 @test length(pred) == 2048
+
+## Test the processing functions
+aws = AWSCore.aws_config()
+mybucket = s3_list_objects(aws, "brazil.images")
+
+# Test the processing link function 
+proc_img = process_aws_link(popfirst!(mybucket)["Key"])
+@test size(proc_img) == (224, 224, 3, 1)
+
+# Test the compression function 
+out = compress_images(mybucket, ResNet(), test=true)
+@test size(out)[1] == 24
+
+####
 
