@@ -75,5 +75,7 @@ function compress_images(bucket, model; test=true)
     return out
 end
 
+export process_aws_link,
+       compress_images
 
 end # module
