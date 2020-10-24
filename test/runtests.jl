@@ -51,6 +51,7 @@ img_orig = OffsetArray(img_pad, 1:224, 1:224)
 img_3d[:, :, 1:3, 1] .= img_orig
 
 # Now, finally create the estimate
+res = ResNet()
 pred = res.layers[1:20](img_3d)
 @test length(pred) == 2048
 
