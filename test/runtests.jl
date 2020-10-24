@@ -10,6 +10,7 @@ using ImageMagick
 using OffsetArrays
 using Flux
 using ProgressMeter
+using genex
 
 ## You will need to run aws configure first to make this work
 aws = AWSCore.aws_config()
