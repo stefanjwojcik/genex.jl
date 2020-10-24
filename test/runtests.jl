@@ -61,11 +61,11 @@ aws = AWSCore.aws_config()
 mybucket = s3_list_objects(aws, "brazil.images")
 
 # Test the processing link function 
-proc_img = process_aws_link(popfirst!(mybucket)["Key"])
+proc_img = process_aws_link(popfirst!(mybucket)["Key"], aws)
 @test size(proc_img) == (224, 224, 3, 1)
 
 # Test the compression function 
-out = compress_images(mybucket, ResNet(), test=true)
+out = compress_images(mybucket, ResNet(), aws, test=true)
 @test size(out)[1] == 24
 
 ####

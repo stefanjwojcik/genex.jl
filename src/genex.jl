@@ -34,7 +34,7 @@ process_aws_link(img_key::String)
 takes an image link from AWS bucket, drops it into a buffer oject, converts to float32, then pads it for a perfect fit into the right
 dimensions. Finally, it converts it into a 3d object for rbg types. 
 """
-function process_aws_link(img_key::String)
+function process_aws_link(img_key::String, aws)
     img_3d = zeros(Float32, (224, 224, 3, 1)) # skeleton array
     img_processed = img_key |>
         x -> AWSS3.s3_get(aws, "brazil.images", x) |>
@@ -48,7 +48,7 @@ function process_aws_link(img_key::String)
 end
 
 
-function compress_images(bucket, model; test=true)
+function compress_images(bucket, model, aws; test=true)
     out = Array{Float32,2}[] # array to fill 
     prediction_array = zeros(Float32, (2048, 1)) #skeleton array to keep replacing
     nit = 0 # counter for stopping 
@@ -68,7 +68,7 @@ function compress_images(bucket, model; test=true)
             end
         end
         ik = popfirst!(bucket)["Key"] 
-        preproc_img = process_aws_link(ik)
+        preproc_img = process_aws_link(ik, aws)
         prediction_array .= model.layers[1:20](preproc_img) |> gpu
         push!(out, copy(prediction_array))
     end
