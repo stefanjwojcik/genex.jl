@@ -69,7 +69,7 @@ function compress_images(bucket, model, aws; test=true)
         end
         ik = popfirst!(bucket)["Key"] 
         preproc_img = process_aws_link(ik, aws)
-        prediction_array .= model.layers[1:20](preproc_img) |> gpu
+        prediction_array .= model.layers[1:20](preproc_img) |> Flux.gpu
         push!(out, copy(prediction_array))
     end
     return out

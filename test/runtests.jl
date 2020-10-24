@@ -53,7 +53,7 @@ img_3d[:, :, 1:3, 1] .= img_orig
 
 # Now, finally create the estimate
 res = ResNet()
-pred = res.layers[1:20](img_3d) |> gpu
+pred = res.layers[1:20](img_3d) |> Flux.gpu
 @test length(pred) == 2048
 
 ## Test the processing functions
