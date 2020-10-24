@@ -34,7 +34,7 @@ img_parsed = readblob(take!(img_buf))
 @test typeof(img_parsed) == Array{Gray{Normed{UInt8,8}},2}
 
 # Convert image to Float 
-img_float = Float64.(img_parsed)
+img_float = Float32.(img_parsed)
 @test size(img_float) == (165, 120)
 
 # Pad image to proper size 
@@ -42,7 +42,7 @@ img_pad = padarray(img_float, Fill(1,(29,52),(30,52)))
 @test size(img_pad) == (224, 224)
 
 # Create empty three-channel Array
-img_3d = zeros(Float64, (224, 224, 3, 1))
+img_3d = zeros(Float32, (224, 224, 3, 1))
 
 # Fix the origins of the Offset Array 
 img_orig = OffsetArray(img_pad, 1:224, 1:224)
