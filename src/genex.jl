@@ -53,16 +53,16 @@ function compress_images(bucket, model, aws; test=true)
     prediction_array = zeros(Float32, (2048, 1)) #skeleton array to keep replacing
     nit = 0 # counter for stopping 
     max_iters = 25 # maximum number of iterations, total possible of 193_108
-    p = Progress(100, 1) # total of iterations, by 1
-    next!(p)
+    p = ProgressMeter.Progress(100, 1) # total of iterations, by 1
+    ProgressMeter.next!(p)
 
     while !isempty(bucket)
         nit += 1
         if ( nit % round(193_108/100) == 0 )
-            next!(p)
+            ProgressMeter.next!(p)
         end    
         if (test)
-            next!(p, step=4)
+            ProgressMeter.next!(p, step=4)
             if nit >= max_iters
                 break
             end
