@@ -41,7 +41,7 @@ function process_aws_link(img_key::String, aws)
         x -> IOBuffer(x) |>
         x -> ImageMagick.readblob(take!(x)) |>
         x -> Float32.(x) |>
-        x -> Images.padarray(x, Fill(1,(29,52),(30,52))) |>
+        x -> Images.padarray(x, Images.Fill(1,(29,52),(30,52))) |>
         x -> OffsetArrays.OffsetArray(x, 1:224, 1:224) |>
         x -> img_3d[:, :, 1:3, :] .= x
     return img_processed
