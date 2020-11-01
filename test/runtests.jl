@@ -71,7 +71,7 @@ out = compress_images(mybucket, ResNet(), aws, test=true)
 # Here we create the actual images:
 aws = AWSCore.aws_config()
 mybucket = s3_list_objects(aws, "brazil.images")
-out = compress_images(mybucket, ResNet(), aws, test=true)
+out = compress_images(mybucket, ResNet(), aws, test=false)
 
 ####
 #out = Array{Float32,2}[] # array to fill 

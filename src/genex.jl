@@ -55,14 +55,13 @@ function compress_images(bucket, model, aws; test=true)
     max_iters = test ? 25 : 193_108 #ternary operator 
     p = ProgressMeter.Progress(max_iters) # total of iterations, by 1
     ProgressMeter.next!(p)
-
-    while !isempty(bucket)
+    img_links = [x["Key"] for x in bucket]
+    for ik in img_links
         nit += 1
         ProgressMeter.next!(p)
         if (test & (nit >= max_iters))
             break
-        end
-        ik = popfirst!(bucket)["Key"] 
+        end 
         preproc_img = process_aws_link(ik, aws)
         prediction_array .= model.layers[1:20](preproc_img) |> Flux.gpu
         push!(out, copy(prediction_array))
