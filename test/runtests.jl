@@ -68,5 +68,18 @@ proc_img = process_aws_link(popfirst!(mybucket)["Key"], aws)
 out = compress_images(mybucket, ResNet(), aws, test=true)
 @test size(out)[1] == 24
 
-####
+# Here we create the actual images:
+aws = AWSCore.aws_config()
+mybucket = s3_list_objects(aws, "brazil.images")
+out = compress_images(mybucket, ResNet(), aws, test=true)
 
+####
+#out = Array{Float32,2}[] # array to fill 
+#prediction_array = zeros(Float32, (2048, 1))
+#model = ResNet()
+
+#for img in keys[1999:2100]
+#    proc_img = process_aws_link(img, aws)
+#    prediction_array .= model.layers[1:20](proc_img) |> Flux.gpu
+#    push!(out, copy(prediction_array))
+#end
