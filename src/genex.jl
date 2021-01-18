@@ -18,7 +18,7 @@ module genex
 import Metalhead
 import Flux
 import Images
-import AWSCore
+import AWS
 import AWSS3
 import OffsetArrays
 import ImageMagick
@@ -28,7 +28,22 @@ import ProgressMeter
 
 #aws = AWSCore.aws_config()
 
-# create mega_function
+# NEW FUNCTIONS 
+
+"""
+download_raw_img(img_key::String)
+takes an image link from AWS bucket, drops it into a buffer oject, converts to float32, then pads it for a perfect fit into the right
+dimensions. Finally, it converts it into a 3d object for rbg types. 
+"""
+function download_raw_img(img_key::String, aws)
+    img_processed = img_key |>
+        x -> AWSS3.s3_get(aws, "brazil.images", x) |>
+        x -> IOBuffer(x) |>
+        x -> ImageMagick.readblob(take!(x)) 
+    return img_processed
+end
+
+# This is a slightly older way to process the data
 """
 process_aws_link(img_key::String)
 takes an image link from AWS bucket, drops it into a buffer oject, converts to float32, then pads it for a perfect fit into the right

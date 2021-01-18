@@ -4,7 +4,7 @@ authors = ["Stefan Wojcik <swojcik@pewresearch.org>"]
 version = "0.1.0"
 
 [deps]
-AWSCore = "4f1ea46c-232b-54a6-9b17-cc2d0f3e6598"
+AWS = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"
 AWSS3 = "1c724243-ef5b-51ab-93f4-b0a88ac62a95"
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
@@ -13,6 +13,5 @@ Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 Metalhead = "dbeba491-748d-5e0e-a39e-b530a07fa0cc"
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
-QuartzImageIO = "dca85d43-d64c-5e67-8c65-017450d5d020"
-Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+Reco = "2a7ad84f-bb1d-4f28-995c-50b88bebb371"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
