@@ -85,6 +85,7 @@ function compress_images(bucket, model, aws; test=true)
 end
 
 export process_aws_link,
-       compress_images
+       compress_images, 
+       download_raw_img
 
 end # module
