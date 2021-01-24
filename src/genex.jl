@@ -158,7 +158,7 @@ function process_aws_link(img_key::String, aws)
     return img_processed
 end
 
-
+ # This function looks at the raw image alone - no face recogntion 
 function compress_images(bucket, model, aws; test=true)
     out = Array{Float32,2}[] # array to fill 
     prediction_array = zeros(Float32, (2048, 1)) #skeleton array to keep replacing
@@ -183,6 +183,9 @@ end
 export process_aws_link,
        compress_images, 
        download_raw_img, 
-       pad_it
+       pad_it, 
+       generate_expression_features,
+       write_out_result, 
+       read_in_result
 
 end # module
