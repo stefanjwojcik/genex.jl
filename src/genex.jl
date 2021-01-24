@@ -110,6 +110,7 @@ end
 
 export process_aws_link,
        compress_images, 
-       download_raw_img
+       download_raw_img, 
+       pad_it
 
 end # module
