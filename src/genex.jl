@@ -113,8 +113,8 @@ function write_out_result(face, body; face_path= "face.txt", body_path ="body.tx
     writable_body = open(body_path, "w+")
 
     # Ping the writable files to initialize them with appropriate sizes
-    write(writable_face, size(face, 1)); write(writable_face, size(face, 2))
-    write(writable_body, size(body, 1)); write(writable_body, size(body, 2))
+    write(writable_face, size(face, 2)); write(writable_face, size(face, 1))
+    write(writable_body, size(body, 2)); write(writable_body, size(body, 1))
 
     # Write out 
     for col in 1:size(face)[2]
