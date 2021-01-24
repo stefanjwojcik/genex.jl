@@ -68,7 +68,7 @@ end
 
 
 # Newer mega-function - uses @inbounds and cuarrays to process the data 
-function generate_expression_features(face_locations, resnet_model; aws=aws, face_seg_file = "face_features.txt", body_file = "body_features.txt")
+function generate_expression_features(face_locations, resnet_model, aws, face_seg_file = "face_features.txt", body_file = "body_features.txt")
     # Progress Meter just to see where we are in the process 
     p = ProgressMeter.Progress(length(face_locations)) # total of iterations, by 1
     ProgressMeter.next!(p)
@@ -107,37 +107,6 @@ function generate_expression_features(face_locations, resnet_model; aws=aws, fac
     printstyled("DONE \n", color=:blue)
     return out
 end
-
-function write_out_result(face, body; face_path= "face.txt", body_path ="body.txt")
-    writable_face = open(face_path, "w+")
-    writable_body = open(body_path, "w+")
-
-    # Ping the writable files to initialize them with appropriate sizes
-    write(writable_face, size(face, 2)); write(writable_face, size(face, 1))
-    write(writable_body, size(body, 2)); write(writable_body, size(body, 1))
-
-    # Write out 
-    for col in 1:size(face)[2]
-        write(writable_face, face[col, :])
-    end
-
-    for col in 1:size(body)[2]
-        write(writable_body, body[col, :])
-    end
-    # Close the files 
-    close(writable_face)
-    close(writable_body)
-
-end
-
-function read_in_result(path)
-    s = open(path) # default is read-only
-    m = read(s, Int)
-    n = read(s, Int)
-    out = Mmap.mmap(s, Matrix{Int}, (m,n))
-    return out
-end
-
 
 # This is a slightly older way to process the data
 """
@@ -184,8 +153,6 @@ export process_aws_link,
        compress_images, 
        download_raw_img, 
        pad_it, 
-       generate_expression_features,
-       write_out_result, 
-       read_in_result
+       generate_expression_features
 
 end # module
