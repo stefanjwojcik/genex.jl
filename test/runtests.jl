@@ -1,9 +1,7 @@
 # This is a script for doing things  with the data
-
-
 using Images
-using AWSCore
 using AWSS3
+using AWS
 using Metalhead
 using Test
 using ImageMagick
@@ -11,75 +9,64 @@ using OffsetArrays
 using Flux
 using ProgressMeter
 using genex
+using JLD
+using CUDA
+
+mybasepath = "/home/swojcik/github/masc_faces/julia"
+## Get face locations_path
+face_locations = load("$mybasepath/face_locations.jld")
 
 ## You will need to run aws configure first to make this work
-aws = AWSCore.aws_config()
-@test typeof(aws) == Dict{Symbol,Any}
+aws = global_aws_config(; region="us-east-1")
+@test typeof(aws) == AWSConfig
 
 # Check that you can get list of object from AWS
 a = s3_list_objects(aws, "brazil.images")
 @test typeof(popfirst!(a)["Key"]) == String
 
-# See if you can get an iobuffer object 
-img_raw = popfirst!(a)["Key"] |>  
-    x -> s3_get(aws, "brazil.images", x) 
-@test typeof(img_raw) == Array{UInt8,1}
+# See if you can download the image object
+img_path = popfirst!(a)["Key"]
+img_raw = download_raw_img(img_path, aws) 
 
-# Test that the buffer worked    
-img_buf = IOBuffer(img_raw)
-@test typeof(img_buf) == Base.GenericIOBuffer{Array{UInt8,1}}
+## how to optimize the processing of raw images 
+CUDA.allowscalar(false)
 
-# Load the buffer object 
-img_parsed = readblob(take!(img_buf))
-@test typeof(img_parsed) == Array{Gray{Normed{UInt8,8}},2}
+ResMod = ResNet()
+run_thru_resnet = function(img_array::Array{Float32,4}, Resnet)
+    (Resnet.layers[1:20](img_array) |> Flux.gpu)[:, 1]
+end
 
-# Convert image to Float 
-img_float = Float32.(img_parsed)
-@test size(img_float) == (165, 120)
+#img_3d = rand(Float32, (224, 224, 3, 1));
+#run_thru_resnet(img_3d, ResMod)
+#@benchmark run_thru_resnet(rand(Float32, (224, 224, 3, 1)), ResMod)
 
-# Pad image to proper size 
-img_pad = padarray(img_float, Fill(1,(29,52),(30,52)))
-@test size(img_pad) == (224, 224)
+#### Version 1: @inbounds: 133.489 ms - row first
+testfunkrow = function(nnmodel)
+    for i in 1:100
+        img_3d_sample = rand(Float32, (224, 224, 3, 1))
+        test_out = CUDA.zeros(Float32, 100,2048)
+        preds = run_thru_resnet(img_3d_sample, nnmodel)
+        @inbounds test_out[i, :] .= preds[:, 1]
+    end
+    return test_out
+end
 
-# Create empty three-channel Array
-img_3d = zeros(Float32, (224, 224, 3, 1))
+#@benchmark testfunkrow(ResMod)
 
-# Fix the origins of the Offset Array 
-img_orig = OffsetArray(img_pad, 1:224, 1:224)
-@test axes(img_orig) == (Base.Slice(1:224), Base.Slice(1:224))
+## THIS METHOD IS HALF THE TIME!! Julia prefers you access whole columns, not rows 
+testfunkcol = function(nnmodel)
+    for i in 1:100
+        img_3d_sample = rand(Float32, (224, 224, 3, 1))
+        test_out = CUDA.zeros(Float32, 2048, 100)
+        preds = run_thru_resnet(img_3d_sample, nnmodel)
+        @inbounds test_out[:, i] .= preds
+    end
+    return test_out
+end
 
-# Dump the array into the empty one
-img_3d[:, :, 1:3, 1] .= img_orig
+@benchmark testfunkcol(ResMod)
 
-# Now, finally create the estimate
-res = ResNet()
-pred = res.layers[1:20](img_3d) |> Flux.gpu
-@test length(pred) == 2048
+## TESTING THE GENEX FUNCTIONS on the live data 
+testdat = Dict(collect(face_locs)[1:20])
 
-## Test the processing functions
-aws = AWSCore.aws_config()
-mybucket = s3_list_objects(aws, "brazil.images")
-
-# Test the processing link function 
-proc_img = process_aws_link(popfirst!(mybucket)["Key"], aws)
-@test size(proc_img) == (224, 224, 3, 1)
-
-# Test the compression function 
-out = compress_images(mybucket, ResNet(), aws, test=true)
-@test size(out)[1] == 24
-
-# Here we create the actual images:
-aws = AWSCore.aws_config()
-mybucket = s3_list_objects(aws, "brazil.images")
-out = compress_images(mybucket, ResNet(), aws, test=false)
-
-####
-#out = Array{Float32,2}[] # array to fill 
-#prediction_array = zeros(Float32, (2048, 1))
-#model = ResNet()
-
-#for img in keys[1999:2100]
-#    proc_img = process_aws_link(img, aws)
-#    prediction_array .= model.layers[1:20](proc_img) |> Flux.gpu
-#    push!(out, copy(prediction_array))
-#end
+body, face, failed = generate_expression_features(testdat, ResNet(), aws)

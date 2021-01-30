@@ -68,15 +68,15 @@ end
 
 
 # Newer mega-function - uses @inbounds and cuarrays to process the data 
-function generate_expression_features(face_locations, resnet_model, aws, face_seg_file = "face_features.txt", body_file = "body_features.txt")
+function generate_expression_features(face_locations, resnet_model, aws)
     # Progress Meter just to see where we are in the process 
     p = ProgressMeter.Progress(length(face_locations)) # total of iterations, by 1
     ProgressMeter.next!(p)
     failed_cases = String[]
 
     # Creating empty arrays to store the results 
-    face_features_out = zeros(Float32, 2048, length(face_locations)) # create base 
-    body_features_out = zeros(Float32, 2048, length(face_locations))
+    face_features_out = CUDA.zeros(Float32, 2048, length(face_locations)) # create base 
+    body_features_out = CUDA.zeros(Float32, 2048, length(face_locations))
 
     for (i, img_key) in enumerate(keys(face_locations))
         #printstyled(img_key*" \n", color=:green)
@@ -96,8 +96,8 @@ function generate_expression_features(face_locations, resnet_model, aws, face_se
         catch
             @warn "$img_key failed"
             push!(failed_cases, img_key)
-            @inbounds face_features_out[:, i] .= zeros(2048, )
-            @inbounds body_features_out[:, i] .= zeros(2048, )
+            @inbounds face_features_out[:, i] .= CUDA.zeros(2048, )
+            @inbounds body_features_out[:, i] .= CUDA.zeros(2048, )
         end
 
         ProgressMeter.next!(p)
