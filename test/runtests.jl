@@ -67,6 +67,25 @@ end
 @benchmark testfunkcol(ResMod)
 
 ## TESTING THE GENEX FUNCTIONS on the live data 
-testdat = Dict(collect(face_locs)[1:20])
+testdat = Dict(collect(face_locations)[1:200])
 
 body, face, failed = generate_expression_features(testdat, ResNet(), aws)
+
+# trying to find the problematic keys in the data 
+# "age53_Male_ceara-do-gas-phs-d.jpg", age32_Male_gleyson-barbosa-d.jpg", "age52_Male_joao-muniz-pmdb-d.jpg"
+prob_keys = collect(keys(face_locs))[occursin.("papagaio", keys(face_locs))]
+
+thisdict = Dict()
+[(key,val) for ]
+
+# Figuring out which images lack face locations 
+empty_faces = String[]
+
+for (i, img_key) in enumerate(keys(face_locations))
+    if isempty(face_locations[img_key])
+        push!(empty_faces, img_key)
+    else 
+        continue
+    end
+end
+

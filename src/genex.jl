@@ -91,7 +91,7 @@ function generate_expression_features(face_locations, resnet_model, aws)
             else 
                 body_padded = pad_it(raw_img)
                 @inbounds body_features_out[:, i] .= (resnet_model.layers[1:20](body_padded) |> Flux.gpu)[:, 1]
-                @inbounds face_features_out[:, i] .= body_features_out[i, :] # substitute face w/ body if empty 
+                @inbounds face_features_out[:, i] .= body_features_out[:, i] # substitute face w/ body if empty 
             end
         catch
             @warn "$img_key failed"
