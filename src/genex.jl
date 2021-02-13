@@ -84,7 +84,7 @@ function generate_expression_features(face_locations, resnet_model, aws)
             raw_img = download_raw_img(img_key, aws)
             if !isempty(face_locations[img_key])
                 top, right, bottom, left = face_locations[img_key][1]
-                face_seg_img = raw_img[top:bottom, left:right]
+                face_seg_img = raw_img[top:bottom, left:right] #bug if locations include 0
                 body_padded, face_padded = pad_it(raw_img), pad_it(face_seg_img)
                 @inbounds face_features_out[:, i] .= (resnet_model.layers[1:20](face_padded) |> Flux.gpu)[:, 1]
                 @inbounds body_features_out[:, i] .= (resnet_model.layers[1:20](body_padded) |> Flux.gpu)[:, 1]
