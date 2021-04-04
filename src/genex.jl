@@ -44,6 +44,21 @@ function download_raw_img(img_key::String, aws)
 end
 
 """
+preprocess_input(x::Array{ColorTypes.Gray{FixedPointNumbers.Normed{UInt8,8}},2})
+Takes raw downloaded image, and applies same preprocessing as python's Keras (normalized by)
+mean of ImageNet)
+"""
+function preprocess_input(input::Array{Float32,4})
+    imagenet_means = [103.939, 116.779, 123.68]
+    x = input .* 255 
+        x[:, :, 1, 1] .= x[:, :, 1, 1] .- imagenet_means[1] 
+        x[:, :, 2, 1] .= x[:, :, 2, 1] .- imagenet_means[2]
+        x[:, :, 3, 1] .= x[:, :, 3, 1] .- imagenet_means[3] 
+    return x
+end
+
+
+"""
 Calculate proper padding size = in this case it's 224 
 """
 function calculate_img_pad(raw_img_size; size_squared=224)
@@ -53,7 +68,7 @@ function calculate_img_pad(raw_img_size; size_squared=224)
 end
 
 """
-Pad the image 
+Pad the image, and add pre-processing step as seen above 
 """
 function pad_it(raw_img)
     (x1, x2), (y1, y2) = calculate_img_pad.(size(raw_img))
@@ -63,7 +78,7 @@ function pad_it(raw_img)
     x -> Images.padarray(x, Images.Fill(1,(x1,y1),(x2,y2))) |>
     x -> OffsetArrays.OffsetArray(x, 1:224, 1:224) |>
     x -> @inbounds img_3d[:, :, 1:3, :] .= x
-    return out
+    return preprocess_input(img_3d)
 end
 
 
