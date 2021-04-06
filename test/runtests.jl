@@ -11,6 +11,7 @@ using ProgressMeter
 using genex
 using JLD
 using CUDA
+using BenchmarkTools
 
 mybasepath = "/home/swojcik/github/masc_faces/julia"
 ## Get face locations_path
@@ -40,24 +41,13 @@ end
 #run_thru_resnet(img_3d, ResMod)
 #@benchmark run_thru_resnet(rand(Float32, (224, 224, 3, 1)), ResMod)
 
-#### Version 1: @inbounds: 133.489 ms - row first
-testfunkrow = function(nnmodel)
-    for i in 1:100
-        img_3d_sample = rand(Float32, (224, 224, 3, 1))
-        test_out = CUDA.zeros(Float32, 100,2048)
-        preds = run_thru_resnet(img_3d_sample, nnmodel)
-        @inbounds test_out[i, :] .= preds[:, 1]
-    end
-    return test_out
-end
-
 #@benchmark testfunkrow(ResMod)
 
 ## THIS METHOD IS HALF THE TIME!! Julia prefers you access whole columns, not rows 
 testfunkcol = function(nnmodel)
     for i in 1:100
         img_3d_sample = rand(Float32, (224, 224, 3, 1))
-        test_out = CUDA.zeros(Float32, 2048, 100)
+        local test_out = CUDA.zeros(Float32, 2048, 100)
         preds = run_thru_resnet(img_3d_sample, nnmodel)
         @inbounds test_out[:, i] .= preds
     end
@@ -75,17 +65,14 @@ body, face, failed = generate_expression_features(testdat, ResNet(), aws)
 # "age53_Male_ceara-do-gas-phs-d.jpg", age32_Male_gleyson-barbosa-d.jpg", "age52_Male_joao-muniz-pmdb-d.jpg"
 prob_keys = collect(keys(face_locs))[occursin.("papagaio", keys(face_locs))]
 
-thisdict = Dict()
-[(key,val) for ]
-
 # Figuring out which images lack face locations 
-empty_faces = String[]
+#empty_faces = String[]
 
-for (i, img_key) in enumerate(keys(face_locations))
-    if isempty(face_locations[img_key])
-        push!(empty_faces, img_key)
-    else 
-        continue
-    end
-end
+#for (i, img_key) in enumerate(keys(face_locations))
+#    if isempty(face_locations[img_key])
+#        push!(empty_faces, img_key)
+#    else 
+#        continue
+#    end
+#end
 
