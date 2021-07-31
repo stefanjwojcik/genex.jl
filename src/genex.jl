@@ -26,6 +26,8 @@ import ImageMagick
 import CUDA
 import ProgressMeter
 import PyCall
+
+using ImageTransformations
 using PyCall
 
 #aws = AWSCore.aws_config()
