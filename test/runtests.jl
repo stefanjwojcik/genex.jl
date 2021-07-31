@@ -4,21 +4,33 @@ using AWSS3
 using AWS
 using Metalhead
 using Test
-using ImageMagick
-using OffsetArrays
-using Flux
-using ProgressMeter
+using ImageTransformations
 using genex
 using JLD
 using CUDA
 using BenchmarkTools
 
-mybasepath = "/home/swojcik/github/masc_faces/julia"
+aws = global_aws_config(; region="us-east-1")
+
+## base image 
+raw_img = download_raw_img("age1048_Male_irmao-erisvaldo-d.jpg", aws)
+@test typeof(raw_img) == Array{ColorTypes.Gray{FixedPointNumbers.Normed{UInt8,8}},2}
+
+## expand_dims
+img_proc = raw_img |>
+    x -> imresize(x, 224, 224) |>
+    x -> Float32.(x) |>
+    x -> my_py_expand(x) |>
+    x -> my_tf_preprocess(x)
+
+@test typeof(img_proc) == Array{Float32,4}
+
+# preprocess 
+
 ## Get face locations_path
 face_locations = load("$mybasepath/face_locations.jld")
 
 ## You will need to run aws configure first to make this work
-aws = global_aws_config(; region="us-east-1")
 @test typeof(aws) == AWSConfig
 
 # Check that you can get list of object from AWS

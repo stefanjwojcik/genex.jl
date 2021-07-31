@@ -28,7 +28,7 @@ import ProgressMeter
 import PyCall
 
 using ImageTransformations
-import PyCall
+using PyCall
 
 #aws = AWSCore.aws_config()
 
@@ -52,33 +52,26 @@ end
 function __init__()
     py"""
     from tensorflow.keras.applications.vgg19 import preprocess_input
+    import numpy as np
 
     def tf_preprocess(x):
         return preprocess_input(x)
-    """
-end
-
-my_tf_preprocess(x) = py"tf_preprocess"(x)
-
-function __init__()
-    py"""
-    import numpy as np
 
     def my_expand(x):
         return np.expand_dims(x, axis=0)
+
     """
 end
 
-my_py_expand = py"my_expand"(x)
+my_py_expand(x) = py"my_expand"(x)
+my_tf_preprocess(x) = py"tf_preprocess"(x)
 
 function my_process(raw_img)
     out = raw_img |>
     x -> imresize(x, 224, 224) |>
     x -> Float32.(x) |>
     x -> my_py_expand(x) |>
-    x -> my_tf_preprocess(x) |>
-    #x -> py"my_expand"(x) |>
-    #x -> py"tf_preprocess"(x) 
+    x -> my_tf_preprocess(x)
     return out[1, :, :, :, :]
 end
 
