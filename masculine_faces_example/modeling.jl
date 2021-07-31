@@ -80,7 +80,7 @@ fix_failed = function(face, body, face_locations, failed, aws)
         fixed_face_locations = otherwise(face_locations[key][1])
         top, right, bottom, left = fixed_face_locations
         face_seg_img = raw_img[top:bottom, left:right] #bug if locations include 0
-        body_padded, face_padded = pad_it(raw_img), pad_it(face_seg_img)
+        body_padded, face_padded = my_process(raw_img), my_process(face_seg_img)
         # fill the face object 
         @inbounds face[:, value] .= (ResNet().layers[1:20](face_padded) |> Flux.gpu)[:, 1]
         @inbounds body[:, value] .= (ResNet().layers[1:20](body_padded) |> Flux.gpu)[:, 1]

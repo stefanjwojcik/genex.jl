@@ -65,7 +65,7 @@ function my_process(raw_img)
     out = raw_img |>
     x -> imresize(x, 224, 224) |>
     x -> Float32.(x) |>
-    x -> py"np.expand_dims(x, axis=0)" |>
+    x -> py"my_expand"(x) |>
     x -> py"tf_preprocess"(x) 
     return out[1, :, :, :, :]
 end
