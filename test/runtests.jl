@@ -23,7 +23,7 @@ img_proc = raw_img |>
     x -> my_py_expand(x) |>
     x -> my_tf_preprocess(x)
 
-@test typeof(img_proc) == Array{Float32,4}
+@test typeof(img_proc) == Array{Float32,3}
 
 # preprocess 
 

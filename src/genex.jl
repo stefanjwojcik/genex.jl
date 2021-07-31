@@ -72,7 +72,7 @@ function my_process(raw_img)
     x -> Float32.(x) |>
     x -> my_py_expand(x) |>
     x -> my_tf_preprocess(x)
-    return out[1, :, :, :, :]
+    return out
 end
 
 # Newer mega-function - uses @inbounds and cuarrays to process the data 

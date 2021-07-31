@@ -1,2 +1,9 @@
 [deps]
+AWS = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"
+AWSS3 = "1c724243-ef5b-51ab-93f4-b0a88ac62a95"
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+ImageTransformations = "02fcd773-0e25-5acc-982a-7f6622650795"
+Metalhead = "dbeba491-748d-5e0e-a39e-b530a07fa0cc"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+genex = "d1d0baac-fcbc-44e3-998e-88f606b8dced"
