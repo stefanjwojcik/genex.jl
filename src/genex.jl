@@ -26,6 +26,7 @@ import ImageMagick
 import CUDA
 import ProgressMeter
 import PyCall
+using PyCall
 
 #aws = AWSCore.aws_config()
 
