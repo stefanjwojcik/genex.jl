@@ -67,12 +67,15 @@ my_py_expand(x) = py"my_expand"(x)
 my_tf_preprocess(x) = py"tf_preprocess"(x)
 
 function my_process(raw_img)
+    exp_shape = zeros(Float32, 224, 224, 3, 1)
     out = raw_img |>
     x -> imresize(x, 224, 224) |>
     x -> Float32.(x) |>
     x -> my_py_expand(x) |>
     x -> my_tf_preprocess(x)
-    return out
+# fill all RGB dimensions of 'out' object with gray processed image 
+    [ exp_shape[:, :, x, 1] .= out[1, :, :] for x in 1:3 ]
+    return exp_shape
 end
 
 # Newer mega-function - uses @inbounds and cuarrays to process the data 

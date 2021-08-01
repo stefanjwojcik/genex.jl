@@ -14,7 +14,6 @@ aws = global_aws_config(; region="us-east-1")
 
 ## base image 
 raw_img = download_raw_img("age1048_Male_irmao-erisvaldo-d.jpg", aws)
-@test typeof(raw_img) == Array{ColorTypes.Gray{FixedPointNumbers.Normed{UInt8,8}},2}
 
 ## expand_dims
 img_proc = raw_img |>
@@ -24,6 +23,21 @@ img_proc = raw_img |>
     x -> my_tf_preprocess(x)
 
 @test typeof(img_proc) == Array{Float32,3}
+
+# Resize the Array to fit (224, 224, 3, 1)
+out = zeros(224, 224, 3, 1)
+
+# fill all RGB dimensions of 'out' object with gray processed image 
+[ out[:, :, x, 1] .= img_proc[1, :, :] for x in 1:3 ]
+
+## how to optimize the processing of raw images 
+CUDA.allowscalar(false)
+
+ResMod = ResNet()
+run_thru_resnet = function(img_array::Array{Float32,4}, Resnet)
+    (Resnet.layers[1:20](img_array) |> Flux.gpu)[:, 1]
+end
+
 
 # preprocess 
 
@@ -41,13 +55,6 @@ a = s3_list_objects(aws, "brazil.images")
 img_path = popfirst!(a)["Key"]
 img_raw = download_raw_img(img_path, aws) 
 
-## how to optimize the processing of raw images 
-CUDA.allowscalar(false)
-
-ResMod = ResNet()
-run_thru_resnet = function(img_array::Array{Float32,4}, Resnet)
-    (Resnet.layers[1:20](img_array) |> Flux.gpu)[:, 1]
-end
 
 #img_3d = rand(Float32, (224, 224, 3, 1));
 #run_thru_resnet(img_3d, ResMod)

@@ -915,7 +915,7 @@ version = "0.2.1"
 
 [[genex]]
 deps = ["AWS", "AWSS3", "BenchmarkTools", "CUDA", "Flux", "ImageMagick", "ImageTransformations", "Images", "Metalhead", "OffsetArrays", "ProgressMeter", "PyCall", "Revise", "Test"]
-git-tree-sha1 = "b2f7ff3025838dc5d1528f77fca3a74bbeae6722"
+git-tree-sha1 = "612a7d58577b50f7ab411229df17a8b5a6215fba"
 repo-rev = "master"
 repo-url = "/home/swojcik/.julia/dev/genex"
 uuid = "d1d0baac-fcbc-44e3-998e-88f606b8dced"
