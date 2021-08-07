@@ -8,7 +8,7 @@ using ImageTransformations
 using genex
 using JLD
 using CUDA
-using BenchmarkTools
+#using BenchmarkTools
 
 aws = global_aws_config(; region="us-east-1")
 
@@ -42,6 +42,7 @@ end
 # preprocess 
 
 ## Get face locations_path
+mybasepath = "/home/swojcik/github/masc_faces/julia"
 face_locations = load("$mybasepath/face_locations.jld")
 
 ## You will need to run aws configure first to make this work
