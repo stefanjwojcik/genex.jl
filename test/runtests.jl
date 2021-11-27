@@ -5,9 +5,10 @@ using AWS
 using Metalhead
 using Test
 using ImageTransformations
-using genex
+#using genex
 using JLD
 using CUDA
+using PyCall
 #using BenchmarkTools
 
 aws = global_aws_config(; region="us-east-1")
@@ -15,71 +16,41 @@ aws = global_aws_config(; region="us-east-1")
 ## base image 
 raw_img = download_raw_img("age1048_Male_irmao-erisvaldo-d.jpg", aws)
 
-## expand_dims
-img_proc = raw_img |>
-    x -> imresize(x, 224, 224) |>
-    x -> Float32.(x) |>
-    x -> my_py_expand(x) |>
-    x -> my_tf_preprocess(x)
+#### Test scaling ********************
 
-@test typeof(img_proc) == Array{Float32,3}
-
-# Resize the Array to fit (224, 224, 3, 1)
-out = zeros(224, 224, 3, 1)
-
-# fill all RGB dimensions of 'out' object with gray processed image 
-[ out[:, :, x, 1] .= img_proc[1, :, :] for x in 1:3 ]
-
-## how to optimize the processing of raw images 
-CUDA.allowscalar(false)
-
-ResMod = ResNet()
-run_thru_resnet = function(img_array::Array{Float32,4}, Resnet)
-    (Resnet.layers[1:20](img_array) |> Flux.gpu)[:, 1]
+# Comparison function in python
+py"""
+from tensorflow.keras.applications.vgg19 import preprocess_input
+"""
+function py_process_input(image_array)
+    image_array_cx = deepcopy(image_array)
+    image_array_cx .= py"preprocess_input"(image_array_cx)
+    return image_array_cx
 end
 
+myrand = rand(224, 224, 1, 3);
+@test py_process_input(myrand) ≈ jimage_net_scale(myrand);
+@test jimage_net_scale(zeros(1, 224, 224, 3)) ≈ py_process_input(zeros(1, 224, 224, 3))
 
-# preprocess 
+## BOTTLENECK FUNCTION 
+myt = tempname();
+download("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Kevin_Bacon_SDCC_2014.jpg/220px-Kevin_Bacon_SDCC_2014.jpg",  myt);
+@test sum(capture_bottleneck(myt)) > 0
+@test sum(capture_bottleneck(myt) |> gpu ) > 0
 
-## Get face locations_path
-mybasepath = "/home/swojcik/github/masc_faces/julia"
-face_locations = load("$mybasepath/face_locations.jld")
+# Checking face segmentation - currently 2485 missing face segs due to squeese
+tfile = tempname()
+AWSS3.s3_get_file(aws, "brazil.face.locations", "face_locations.jld", tfile);
+face_locations = load(tfile);
 
-## You will need to run aws configure first to make this work
-@test typeof(aws) == AWSConfig
+sum(isempty.(values(face_locations)))
+emtpyfaces = findall(isempty.(values(face_locations)))
+raw_img = download_raw_img(collect(keys(face_locations))[emtpyfaces][1], aws)
 
-# Check that you can get list of object from AWS
-a = s3_list_objects(aws, "brazil.images")
-@test typeof(popfirst!(a)["Key"]) == String
-
-# See if you can download the image object
-img_path = popfirst!(a)["Key"]
-img_raw = download_raw_img(img_path, aws) 
-
-
-#img_3d = rand(Float32, (224, 224, 3, 1));
-#run_thru_resnet(img_3d, ResMod)
-#@benchmark run_thru_resnet(rand(Float32, (224, 224, 3, 1)), ResMod)
-
-#@benchmark testfunkrow(ResMod)
-
-## THIS METHOD IS HALF THE TIME!! Julia prefers you access whole columns, not rows 
-testfunkcol = function(nnmodel)
-    for i in 1:100
-        img_3d_sample = rand(Float32, (224, 224, 3, 1))
-        local test_out = CUDA.zeros(Float32, 2048, 100)
-        preds = run_thru_resnet(img_3d_sample, nnmodel)
-        @inbounds test_out[:, i] .= preds
-    end
-    return test_out
-end
-
-@benchmark testfunkcol(ResMod)
-
-## TESTING THE GENEX FUNCTIONS on the live data 
-testdat = Dict(collect(face_locations)[1:200])
-
-body, face, failed = generate_expression_features(testdat, ResNet(), aws)
+## Testing the mega function 
+face_test_imgs = collect(keys(face_locations))[1:10]
+face_test_dict = Dict(key=>value for (key,value) in face_locations if key ∈ face_test_imgs)
+body, face, failed = generate_expression_features(face_test_dict, aws)
 
 # trying to find the problematic keys in the data 
 # "age53_Male_ceara-do-gas-phs-d.jpg", age32_Male_gleyson-barbosa-d.jpg", "age52_Male_joao-muniz-pmdb-d.jpg"
