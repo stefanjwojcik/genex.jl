@@ -50,7 +50,7 @@ end
 This is a function to scale images to the ImageNet means. The purpose is to scale images to match ImageNet. 
 Python also switches the 1st and 3rd RBG channels sometimes, so this function does that too. 
 """
-function jimage_net_scale(dx::AbstractArray, channels_last=false)
+function jimage_net_scale!(dx::AbstractArray, channels_last=false)
     imagenet_means = [-103.93899999996464, -116.77900000007705, -123.67999999995286]
     #dx = copy(x)
     # swap R and G channels like python does - only during channels_last 
@@ -76,13 +76,13 @@ end
 This is the function that takes a function and returns a function for processing each image.  
 """
 function create_bottleneck_pipeline(neural_model)
-    function capture_bottleneck(img)
+    function capture_bottleneck(image_path)
         out = @pipe load(image_path) |> #
         x -> imresize(x, 224, 224) |> # resize the image to imagenet dims
         x -> Float32.(channelview(x) * 255) |> # drop to an array
         x -> permutedims(x, [2, 3, 1]) |> # swap ordering of dimensions 
         x -> reshape(x, (1, 224, 224, 3) ) |> # Python style for comparison sake 
-        x -> jimage_net_scale(x) |>
+        x -> jimage_net_scale!(x) |>
         #x -> reshape(x, (224, 224, 3, 1)) |>
         x -> cflat(neural_model(x))
         return out
@@ -90,7 +90,7 @@ function create_bottleneck_pipeline(neural_model)
 end
 
 nn_model = VGG19().layers[1:25];
-capture_bottleneck = create_bottleneck_pipeline(nn_model);
+capture_bottleneck(img_path) = create_bottleneck_pipeline(nn_model);
 
 # TODO: Fix this function, cut out the face segmentation for separate step 
 function generate_expression_features(face_locations, aws)

@@ -17,20 +17,10 @@ aws = global_aws_config(; region="us-east-1")
 raw_img = download_raw_img("age1048_Male_irmao-erisvaldo-d.jpg", aws)
 
 #### Test scaling ********************
-
-# Comparison function in python
-py"""
-from tensorflow.keras.applications.vgg19 import preprocess_input
-"""
-function py_process_input(image_array)
-    image_array_cx = deepcopy(image_array)
-    image_array_cx .= py"preprocess_input"(image_array_cx)
-    return image_array_cx
-end
-
-myrand = rand(224, 224, 1, 3);
-@test py_process_input(myrand) ≈ jimage_net_scale(myrand);
-@test jimage_net_scale(zeros(1, 224, 224, 3)) ≈ py_process_input(zeros(1, 224, 224, 3))
+testarray = zeros(1, 224, 224, 3);
+testarray[:, :, :, 3] .= 100;
+testscale = jimage_net_scale!(testarray, true);
+@test argmax([mean(testscale[:, :, :, x]) for x in 1:3]) == 3
 
 ## BOTTLENECK FUNCTION 
 myt = tempname();
