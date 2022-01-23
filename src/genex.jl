@@ -46,11 +46,17 @@ function download_raw_img(img_key::String, aws)
     return img_processed
 end
 
-function jimage_net_scale(dx::AbstractArray)
+"""
+This is a function to scale images to the ImageNet means. The purpose is to scale images to match ImageNet. 
+Python also switches the 1st and 3rd RBG channels sometimes, so this function does that too. 
+"""
+function jimage_net_scale(dx::AbstractArray, channels_last=false)
     imagenet_means = [-103.93899999996464, -116.77900000007705, -123.67999999995286]
     #dx = copy(x)
     # swap R and G channels like python does - only during channels_last 
-    dx[:, :, :, 1], dx[:, :, :, 3] = dx[:, :, :, 3], dx[:, :, :, 1]
+    if channels_last
+        dx[:, :, :, 1], dx[:, :, :, 3] = dx[:, :, :, 3], dx[:, :, :, 1]
+    end
     dx[:, :, :, 1] .+= imagenet_means[1]
     dx[:, :, :, 2] .+= imagenet_means[2]
     dx[:, :, :, 3] .+= imagenet_means[3]
@@ -58,20 +64,26 @@ function jimage_net_scale(dx::AbstractArray)
     return(dx)
 end
 
+"""
+convenience function. flattens an array
+"""
 # function to flatten an array 
 function cflat(x::AbstractArray)
     collect(Iterators.flatten(x))
 end
 
+"""
+This is the function that takes a function and returns a function for processing each image.  
+"""
 function create_bottleneck_pipeline(neural_model)
     function capture_bottleneck(img)
         out = @pipe load(image_path) |> #
-        x -> imresize(x, 224, 224) |> #
-        x -> Float32.(channelview(x) * 255) |> #
-        x -> permutedims(x, [2, 3, 1]) |> #
+        x -> imresize(x, 224, 224) |> # resize the image to imagenet dims
+        x -> Float32.(channelview(x) * 255) |> # drop to an array
+        x -> permutedims(x, [2, 3, 1]) |> # swap ordering of dimensions 
         x -> reshape(x, (1, 224, 224, 3) ) |> # Python style for comparison sake 
         x -> jimage_net_scale(x) |>
-        x -> reshape(x, (224, 224, 3, 1)) |>
+        #x -> reshape(x, (224, 224, 3, 1)) |>
         x -> cflat(neural_model(x))
         return out
     end
