@@ -90,7 +90,7 @@ function create_bottleneck_pipeline(neural_model)
 end
 
 nn_model = VGG19().layers[1:25];
-capture_bottleneck(img_path) = create_bottleneck_pipeline(nn_model);
+capture_bottleneck = create_bottleneck_pipeline(nn_model);
 
 # TODO: Fix this function, cut out the face segmentation for separate step 
 function generate_expression_features(face_locations, aws)
